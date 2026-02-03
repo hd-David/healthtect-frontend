@@ -2,10 +2,28 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import '../FormStyles.css';
 
-function Hospital({ token }) {
+function Hospital({ token, user }) {
   const [hospitals, setHospitals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const isAdmin = user?.is_hospital_admin;
+  const isRadiologist = user?.is_radiologist;
+  const isClinician = user?.is_clinician;
+
+  const getUserRole = () => {
+    if (isAdmin) return 'Hospital Admin';
+    if (isRadiologist) return 'Radiologist';
+    if (isClinician) return 'Clinician';
+    return 'User';
+  };
+
+  const getUserInitials = () => {
+    if (user?.first_name && user?.last_name) {
+      return `${user.first_name[0]}${user.last_name[0]}`.toUpperCase();
+    }
+    return user?.username?.substring(0, 2).toUpperCase() || 'U';
+  };
 
   useEffect(() => {
     if (!token) return;
@@ -31,38 +49,43 @@ function Hospital({ token }) {
       });
   }, [token]);
 
-  return (
-    <div className="app-layout">
-      {/* Sidebar */}
-      <aside className="sidebar">
-        <div className="sidebar-header">
-          <Link to="/dashboard" className="sidebar-brand">
-            <div className="sidebar-brand-icon">🏥</div>
-            <span className="sidebar-brand-text">Healthtect</span>
+  const renderSidebar = () => (
+    <aside className="sidebar">
+      <div className="sidebar-header">
+        <Link to="/dashboard" className="sidebar-brand">
+          <div className="sidebar-brand-icon">🏥</div>
+          <span className="sidebar-brand-text">Healthtect</span>
+        </Link>
+      </div>
+      
+      <nav className="sidebar-nav">
+        <div className="nav-section">
+          <div className="nav-section-title">Main Menu</div>
+          <Link to="/dashboard" className="nav-item">
+            <span className="nav-item-icon">📊</span>
+            Dashboard
           </Link>
         </div>
         
-        <nav className="sidebar-nav">
-          <div className="nav-section">
-            <div className="nav-section-title">Main Menu</div>
-            <Link to="/dashboard" className="nav-item">
-              <span className="nav-item-icon">📊</span>
-              Dashboard
-            </Link>
-          </div>
-          
+        {isAdmin && (
           <div className="nav-section">
             <div className="nav-section-title">Management</div>
             <Link to="/user" className="nav-item">
               <span className="nav-item-icon">👥</span>
               Users
             </Link>
+            <Link to="/invite" className="nav-item">
+              <span className="nav-item-icon">✉️</span>
+              Invite Users
+            </Link>
             <Link to="/hospital" className="nav-item active">
               <span className="nav-item-icon">🏨</span>
               Hospital Details
             </Link>
           </div>
-          
+        )}
+        
+        {(isRadiologist || isClinician || isAdmin) && (
           <div className="nav-section">
             <div className="nav-section-title">Medical</div>
             <Link to="/studies" className="nav-item">
@@ -70,12 +93,40 @@ function Hospital({ token }) {
               Imaging Studies
             </Link>
             <Link to="/results" className="nav-item">
-              <span className="nav-item-icon">📋</span>
-              Imaging Results
+              <span className="nav-item-icon">🤖</span>
+              AI Analysis Results
             </Link>
           </div>
-        </nav>
-      </aside>
+        )}
+        
+        {isAdmin && (
+          <div className="nav-section">
+            <div className="nav-section-title">System</div>
+            <Link to="/logs" className="nav-item">
+              <span className="nav-item-icon">📝</span>
+              Access Logs
+            </Link>
+          </div>
+        )}
+      </nav>
+      
+      <div className="sidebar-footer">
+        <div className="sidebar-user">
+          <div className="sidebar-user-avatar">{getUserInitials()}</div>
+          <div className="sidebar-user-info">
+            <div className="sidebar-user-name">
+              {user?.first_name ? `${user.first_name} ${user.last_name || ''}`.trim() : user?.username}
+            </div>
+            <div className="sidebar-user-role">{getUserRole()}</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+  );
+
+  return (
+    <div className="app-layout">
+      {renderSidebar()}
 
       {/* Main Content */}
       <div className="main-content">

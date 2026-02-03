@@ -32,11 +32,11 @@ class Login extends Component {
       const data = await response.json();
       if (response.ok && data.access) {
         if (this.props.onLogin) {
-          this.props.onLogin(data.access);
+          this.props.onLogin(data.access, data.user || null);
         }
         window.location.href = '/dashboard';
       } else {
-        this.setState({ error: 'Invalid credentials', loading: false });
+        this.setState({ error: data.detail || 'Invalid credentials', loading: false });
       }
     } catch (err) {
       this.setState({ error: 'Login failed', loading: false });
@@ -105,7 +105,8 @@ class Login extends Component {
               {this.state.error && <div className="alert alert-error">{this.state.error}</div>}
             </form>
             <div className="auth-footer">
-              <p>Don't have an account? <Link to="/register">Create one</Link></p>
+              <p><Link to="/forgot-password">Forgot your password?</Link></p>
+              <p style={{ marginTop: '8px' }}>Don't have an account? <Link to="/register">Create one</Link></p>
             </div>
           </div>
         </div>
