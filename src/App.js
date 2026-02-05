@@ -5,6 +5,7 @@ import Landing from './components/Landing';
 import User from './components/User';
 import Login from './components/Login';
 import Register from './components/Register';
+import RegisterHospital from './components/RegisterHospital';
 import Dashboard from './components/Dashboard';
 import Hospital from './components/Hospital';
 import Study from './components/Study';
@@ -50,22 +51,31 @@ function App() {
     setUser(null);
   }, []);
 
+  // Handler for when hospital is registered - updates user with full info including admin status
+  const handleHospitalRegistered = useCallback((updatedUser) => {
+    setUser(updatedUser);
+  }, []);
+
+  // Check if user needs to register hospital
+  const needsHospitalRegistration = token && user && !user.hospital_id;
+
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Landing />} />
-        <Route path="/login" element={token ? <Navigate to="/dashboard" replace /> : <Login onLogin={handleLogin} />} />
+        <Route path="/login" element={token ? (needsHospitalRegistration ? <Navigate to="/register-hospital" replace /> : <Navigate to="/dashboard" replace />) : <Login onLogin={handleLogin} />} />
         <Route path="/register" element={<Register onRegister={() => {}} />} />
+        <Route path="/register-hospital" element={token ? (needsHospitalRegistration ? <RegisterHospital token={token} user={user} onLogout={handleLogout} onHospitalRegistered={handleHospitalRegistered} /> : <Navigate to="/dashboard" replace />) : <Navigate to="/login" replace />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/accept-invitation" element={<AcceptInvitation />} />
-        <Route path="/dashboard" element={token ? <Dashboard onLogout={handleLogout} user={user} token={token} /> : <Navigate to="/" replace />} />
-        <Route path="/user" element={token ? <User token={token} user={user} /> : <Navigate to="/" replace />} />
-        <Route path="/invite" element={token ? <InviteUser token={token} user={user} /> : <Navigate to="/" replace />} />
-        <Route path="/hospital" element={token ? <Hospital token={token} user={user} /> : <Navigate to="/" replace />} />
-        <Route path="/studies" element={token ? <Study token={token} user={user} /> : <Navigate to="/" replace />} />
-        <Route path="/results" element={token ? <AIResult token={token} user={user} /> : <Navigate to="/" replace />} />
-        <Route path="/logs" element={token ? <AccessLogs token={token} user={user} /> : <Navigate to="/" replace />} />
+        <Route path="/dashboard" element={token ? (needsHospitalRegistration ? <Navigate to="/register-hospital" replace /> : <Dashboard onLogout={handleLogout} user={user} token={token} />) : <Navigate to="/" replace />} />
+        <Route path="/user" element={token ? (needsHospitalRegistration ? <Navigate to="/register-hospital" replace /> : <User token={token} user={user} />) : <Navigate to="/" replace />} />
+        <Route path="/invite" element={token ? (needsHospitalRegistration ? <Navigate to="/register-hospital" replace /> : <InviteUser token={token} user={user} />) : <Navigate to="/" replace />} />
+        <Route path="/hospital" element={token ? (needsHospitalRegistration ? <Navigate to="/register-hospital" replace /> : <Hospital token={token} user={user} />) : <Navigate to="/" replace />} />
+        <Route path="/studies" element={token ? (needsHospitalRegistration ? <Navigate to="/register-hospital" replace /> : <Study token={token} user={user} />) : <Navigate to="/" replace />} />
+        <Route path="/results" element={token ? (needsHospitalRegistration ? <Navigate to="/register-hospital" replace /> : <AIResult token={token} user={user} />) : <Navigate to="/" replace />} />
+        <Route path="/logs" element={token ? (needsHospitalRegistration ? <Navigate to="/register-hospital" replace /> : <AccessLogs token={token} user={user} />) : <Navigate to="/" replace />} />
       </Routes>
     </Router>
   );

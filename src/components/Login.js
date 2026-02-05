@@ -34,7 +34,12 @@ class Login extends Component {
         if (this.props.onLogin) {
           this.props.onLogin(data.access, data.user || null);
         }
-        window.location.href = '/dashboard';
+        // Check if user has a hospital - redirect to register-hospital if not
+        if (data.user && !data.user.hospital_id) {
+          window.location.href = '/register-hospital';
+        } else {
+          window.location.href = '/dashboard';
+        }
       } else {
         this.setState({ error: data.detail || 'Invalid credentials', loading: false });
       }

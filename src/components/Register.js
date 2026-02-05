@@ -6,16 +6,12 @@ class Register extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      // User details
+      firstName: '',
+      lastName: '',
       username: '',
       email: '',
       password: '',
-      // Hospital details
-      hospitalName: '',
-      hospitalAddress: '',
-      hospitalPhone: '',
-      hospitalEmail: '',
-      // UI state
+      confirmPassword: '',
       error: '',
       loading: false,
       success: false,
@@ -28,21 +24,24 @@ class Register extends Component {
 
   handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate passwords match
+    if (this.state.password !== this.state.confirmPassword) {
+      this.setState({ error: 'Passwords do not match' });
+      return;
+    }
+
     this.setState({ loading: true, error: '', success: false });
     try {
       const response = await fetch('http://localhost:8000/api/register/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          first_name: this.state.firstName,
+          last_name: this.state.lastName,
           username: this.state.username,
           email: this.state.email,
           password: this.state.password,
-          hospital: {
-            name: this.state.hospitalName,
-            address: this.state.hospitalAddress,
-            contact_phone: this.state.hospitalPhone,
-            contact_email: this.state.hospitalEmail,
-          }
         }),
       });
       if (response.ok) {
@@ -66,8 +65,6 @@ class Register extends Component {
           } else {
             errorMsg = data.email.join(' ');
           }
-        } else if (data && data.hospital) {
-          errorMsg = typeof data.hospital === 'string' ? data.hospital : 'Invalid hospital details';
         } else if (data && data.error) {
           errorMsg = data.error;
         } else if (data && data.detail) {
@@ -89,135 +86,116 @@ class Register extends Component {
               <div className="auth-brand-icon">🏥</div>
               <span className="auth-brand-text">Healthtect</span>
             </div>
-            <h1>Register Your Hospital</h1>
+            <h1>Join Healthtect</h1>
             <p>
-              Create your admin account and register your hospital to access powerful tools for managing medical imaging and patient care.
+              Create your account to get started. After registration, you'll be able to set up your hospital and start managing your healthcare operations.
             </p>
             <ul className="auth-features">
-              <li>One Admin Per Hospital</li>
-              <li>Full Hospital Management</li>
+              <li>Quick & Easy Sign Up</li>
+              <li>Register Your Hospital After Login</li>
               <li>HIPAA Compliant Platform</li>
               <li>AI-Powered Imaging Analysis</li>
             </ul>
           </div>
         </div>
         <div className="auth-main">
-          <div className="auth-card" style={{ maxWidth: '480px' }}>
+          <div className="auth-card">
             <div className="auth-card-header">
-              <h2 className="auth-card-title">Create Account & Hospital</h2>
-              <p className="auth-card-subtitle">Set up your hospital in one step</p>
+              <h2 className="auth-card-title">Create Account</h2>
+              <p className="auth-card-subtitle">Sign up to get started</p>
             </div>
             <form onSubmit={this.handleSubmit} autoComplete="off">
-              {/* Admin Account Section */}
-              <div style={{ marginBottom: '24px' }}>
-                <h4 style={{ color: 'var(--primary)', fontSize: '0.9rem', fontWeight: 600, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span>👤</span> Admin Account
-                </h4>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div className="form-group">
-                  <label className="form-label" htmlFor="username">Username</label>
+                  <label className="form-label" htmlFor="firstName">First Name</label>
                   <input
                     type="text"
                     className="form-input"
-                    id="username"
-                    name="username"
-                    placeholder="Choose a username"
-                    value={this.state.username}
+                    id="firstName"
+                    name="firstName"
+                    placeholder="First name"
+                    value={this.state.firstName}
                     onChange={this.handleChange}
                     required
-                    autoComplete="username"
+                    autoComplete="given-name"
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label" htmlFor="email">Email Address</label>
+                  <label className="form-label" htmlFor="lastName">Last Name</label>
                   <input
-                    type="email"
+                    type="text"
                     className="form-input"
-                    id="email"
-                    name="email"
-                    placeholder="Enter your email"
-                    value={this.state.email}
+                    id="lastName"
+                    name="lastName"
+                    placeholder="Last name"
+                    value={this.state.lastName}
                     onChange={this.handleChange}
                     required
-                    autoComplete="email"
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label" htmlFor="password">Password</label>
-                  <input
-                    type="password"
-                    className="form-input"
-                    id="password"
-                    name="password"
-                    placeholder="Create a password"
-                    value={this.state.password}
-                    onChange={this.handleChange}
-                    required
-                    autoComplete="new-password"
+                    autoComplete="family-name"
                   />
                 </div>
               </div>
-
-              {/* Hospital Section */}
-              <div style={{ marginBottom: '16px', paddingTop: '16px', borderTop: '1px solid var(--border-color)' }}>
-                <h4 style={{ color: 'var(--primary)', fontSize: '0.9rem', fontWeight: 600, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span>🏨</span> Hospital Details
-                </h4>
-                <div className="form-group">
-                  <label className="form-label" htmlFor="hospitalName">Hospital Name</label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    id="hospitalName"
-                    name="hospitalName"
-                    placeholder="Enter hospital name"
-                    value={this.state.hospitalName}
-                    onChange={this.handleChange}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label" htmlFor="hospitalAddress">Address</label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    id="hospitalAddress"
-                    name="hospitalAddress"
-                    placeholder="Enter hospital address"
-                    value={this.state.hospitalAddress}
-                    onChange={this.handleChange}
-                    required
-                  />
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                  <div className="form-group">
-                    <label className="form-label" htmlFor="hospitalPhone">Phone (Optional)</label>
-                    <input
-                      type="tel"
-                      className="form-input"
-                      id="hospitalPhone"
-                      name="hospitalPhone"
-                      placeholder="Contact phone"
-                      value={this.state.hospitalPhone}
-                      onChange={this.handleChange}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label" htmlFor="hospitalEmail">Email (Optional)</label>
-                    <input
-                      type="email"
-                      className="form-input"
-                      id="hospitalEmail"
-                      name="hospitalEmail"
-                      placeholder="Contact email"
-                      value={this.state.hospitalEmail}
-                      onChange={this.handleChange}
-                    />
-                  </div>
-                </div>
+              <div className="form-group">
+                <label className="form-label" htmlFor="username">Username</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  id="username"
+                  name="username"
+                  placeholder="Choose a username"
+                  value={this.state.username}
+                  onChange={this.handleChange}
+                  required
+                  autoComplete="username"
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label" htmlFor="email">Email Address</label>
+                <input
+                  type="email"
+                  className="form-input"
+                  id="email"
+                  name="email"
+                  placeholder="Enter your email"
+                  value={this.state.email}
+                  onChange={this.handleChange}
+                  required
+                  autoComplete="email"
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label" htmlFor="password">Password</label>
+                <input
+                  type="password"
+                  className="form-input"
+                  id="password"
+                  name="password"
+                  placeholder="Create a password"
+                  value={this.state.password}
+                  onChange={this.handleChange}
+                  required
+                  minLength="8"
+                  autoComplete="new-password"
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label" htmlFor="confirmPassword">Confirm Password</label>
+                <input
+                  type="password"
+                  className="form-input"
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  placeholder="Confirm your password"
+                  value={this.state.confirmPassword}
+                  onChange={this.handleChange}
+                  required
+                  minLength="8"
+                  autoComplete="new-password"
+                />
               </div>
 
               <button type="submit" className="btn-primary" disabled={this.state.loading}>
-                {this.state.loading ? 'Creating Account & Hospital...' : 'Register Hospital'}
+                {this.state.loading ? 'Creating Account...' : 'Create Account'}
               </button>
               {this.state.error && <div className="alert alert-error">{this.state.error}</div>}
               {this.state.success && <div className="alert alert-success">Registration successful! Redirecting to login...</div>}
