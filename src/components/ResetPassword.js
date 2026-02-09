@@ -82,6 +82,7 @@ class ResetPassword extends Component {
           token: token,
           uid: uid,
           password: this.state.password,
+          password_confirm: this.state.confirmPassword,
         }),
       });
       const data = await response.json();

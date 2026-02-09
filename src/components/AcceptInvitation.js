@@ -86,6 +86,7 @@ class AcceptInvitation extends Component {
           token: token,
           username: this.state.username,
           password: this.state.password,
+          password_confirm: this.state.confirmPassword,
         }),
       });
       const data = await response.json();

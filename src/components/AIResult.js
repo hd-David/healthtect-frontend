@@ -170,29 +170,60 @@ function AIResult({ token, user }) {
                     </tr>
                   </thead>
                   <tbody>
-                    {results.map((result) => (
-                      <tr key={result.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                        <td style={{ padding: '12px 8px', color: 'var(--text-primary)' }}>{result.study || result.study_id || '-'}</td>
-                        <td style={{ padding: '12px 8px', color: 'var(--text-primary)' }}>{result.finding || result.ai_finding || '-'}</td>
-                        <td style={{ padding: '12px 8px', color: 'var(--text-primary)' }}>
-                          {result.confidence ? `${(result.confidence * 100).toFixed(1)}%` : '-'}
-                        </td>
-                        <td style={{ padding: '12px 8px' }}>
-                          <span style={{
-                            padding: '4px 8px',
-                            borderRadius: '4px',
-                            fontSize: '0.85rem',
-                            backgroundColor: result.validated ? 'rgba(29, 201, 183, 0.15)' : 'rgba(255, 194, 65, 0.15)',
-                            color: result.validated ? 'var(--success)' : 'var(--warning)',
-                          }}>
-                            {result.validated ? 'Validated' : 'Pending Review'}
-                          </span>
-                        </td>
-                        <td style={{ padding: '12px 8px', color: 'var(--text-muted)' }}>
-                          {result.created_at ? new Date(result.created_at).toLocaleDateString() : '-'}
-                        </td>
-                      </tr>
-                    ))}
+                    {results.map((result) => {
+                      // Support both flat and nested result_json structure
+                      const findings = result.result_json?.findings || [];
+                      // If no findings, show a single row as before
+                      if (!findings.length) {
+                        return (
+                          <tr key={result.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                            <td style={{ padding: '12px 8px', color: 'var(--text-primary)' }}>{result.study || result.study_id || '-'}</td>
+                            <td style={{ padding: '12px 8px', color: 'var(--text-primary)' }}>{result.finding || result.ai_finding || '-'}</td>
+                            <td style={{ padding: '12px 8px', color: 'var(--text-primary)' }}>
+                              {result.confidence ? `${(result.confidence * 100).toFixed(1)}%` : '-'}
+                            </td>
+                            <td style={{ padding: '12px 8px' }}>
+                              <span style={{
+                                padding: '4px 8px',
+                                borderRadius: '4px',
+                                fontSize: '0.85rem',
+                                backgroundColor: result.validated ? 'rgba(29, 201, 183, 0.15)' : 'rgba(255, 194, 65, 0.15)',
+                                color: result.validated ? 'var(--success)' : 'var(--warning)',
+                              }}>
+                                {result.validated ? 'Validated' : 'Pending Review'}
+                              </span>
+                            </td>
+                            <td style={{ padding: '12px 8px', color: 'var(--text-muted)' }}>
+                              {result.created_at ? new Date(result.created_at).toLocaleDateString() : '-'}
+                            </td>
+                          </tr>
+                        );
+                      }
+                      // Otherwise, show a row for each finding
+                      return findings.map((finding, idx) => (
+                        <tr key={result.id + '-' + idx} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                          <td style={{ padding: '12px 8px', color: 'var(--text-primary)' }}>{result.study || result.study_id || '-'}</td>
+                          <td style={{ padding: '12px 8px', color: 'var(--text-primary)' }}>{finding.label || '-'}</td>
+                          <td style={{ padding: '12px 8px', color: 'var(--text-primary)' }}>
+                            {finding.confidence ? `${(finding.confidence * 100).toFixed(1)}%` : '-'}
+                          </td>
+                          <td style={{ padding: '12px 8px' }}>
+                            <span style={{
+                              padding: '4px 8px',
+                              borderRadius: '4px',
+                              fontSize: '0.85rem',
+                              backgroundColor: result.validated ? 'rgba(29, 201, 183, 0.15)' : 'rgba(255, 194, 65, 0.15)',
+                              color: result.validated ? 'var(--success)' : 'var(--warning)',
+                            }}>
+                              {result.validated ? 'Validated' : 'Pending Review'}
+                            </span>
+                          </td>
+                          <td style={{ padding: '12px 8px', color: 'var(--text-muted)' }}>
+                            {result.created_at ? new Date(result.created_at).toLocaleDateString() : '-'}
+                          </td>
+                        </tr>
+                      ));
+                    })}
                   </tbody>
                 </table>
               )}
