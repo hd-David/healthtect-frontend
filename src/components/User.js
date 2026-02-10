@@ -13,6 +13,7 @@ function User({ token, user: currentUser }) {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const [actionMessage, setActionMessage] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const isAdmin = currentUser?.is_hospital_admin;
   const isRadiologist = currentUser?.is_radiologist;
@@ -131,7 +132,7 @@ function User({ token, user: currentUser }) {
   };
 
   const renderSidebar = () => (
-    <aside className="sidebar">
+    <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
       <div className="sidebar-header">
         <Link to="/dashboard" className="sidebar-brand">
           <div className="sidebar-brand-icon">🏥</div>
@@ -208,11 +209,23 @@ function User({ token, user: currentUser }) {
   return (
     <div className="app-layout">
       {renderSidebar()}
+      <div
+        className={`sidebar-backdrop ${sidebarOpen ? 'open' : ''}`}
+        onClick={() => setSidebarOpen(false)}
+        aria-hidden="true"
+      />
 
       {/* Main Content */}
       <div className="main-content">
         <header className="top-header">
           <div className="header-left">
+            <button
+              className="menu-toggle"
+              onClick={() => setSidebarOpen((open) => !open)}
+              aria-label="Toggle menu"
+            >
+              ☰
+            </button>
             <h1 className="page-title">User Management</h1>
           </div>
           <div className="header-right">

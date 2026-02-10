@@ -27,6 +27,19 @@ function AccessLogs({ token, user }) {
     return user?.username?.substring(0, 2).toUpperCase() || 'U';
   };
 
+  const getLogUserLabel = (log) => {
+    if (!log) return '-';
+    const value = log.username || log.user_email || log.user;
+    if (value === null || value === undefined) return '-';
+    return String(value);
+  };
+
+  const getLogUserInitials = (log) => {
+    const label = getLogUserLabel(log).trim();
+    if (!label || label === '-') return 'U';
+    return label.substring(0, 2).toUpperCase();
+  };
+
   useEffect(() => {
     if (!token) return;
     fetch('http://localhost:8000/api/admin/access-logs/', {
@@ -103,12 +116,13 @@ function AccessLogs({ token, user }) {
     const matchesFilter = filter === 'all' || 
       (log.action?.toLowerCase().includes(filter) || log.action_type?.toLowerCase() === filter);
     
+    const searchValue = searchTerm.toLowerCase();
+    const userSearch = getLogUserLabel(log).toLowerCase();
     const matchesSearch = searchTerm === '' || 
-      log.user?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      log.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      log.action?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      userSearch.includes(searchValue) ||
+      log.action?.toLowerCase().includes(searchValue) ||
       log.ip_address?.includes(searchTerm) ||
-      log.resource?.toLowerCase().includes(searchTerm.toLowerCase());
+      log.resource?.toLowerCase().includes(searchValue);
     
     return matchesFilter && matchesSearch;
   });
@@ -354,10 +368,10 @@ function AccessLogs({ token, user }) {
                                   fontSize: '0.75rem',
                                   fontWeight: 600,
                                 }}>
-                                  {(log.user || log.username || 'U').substring(0, 2).toUpperCase()}
+                                  {getLogUserInitials(log)}
                                 </div>
                                 <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>
-                                  {log.user || log.username || log.user_email || '-'}
+                                  {getLogUserLabel(log)}
                                 </span>
                               </div>
                             </td>
