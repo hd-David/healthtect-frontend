@@ -85,19 +85,21 @@ class ResetPassword extends Component {
           password_confirm: this.state.confirmPassword,
         }),
       });
-      const data = await response.json();
-      if (response.ok) {
-        this.setState({ success: true, loading: false });
-        setTimeout(() => {
-          window.location.href = '/login';
-        }, 2000);
-      } else {
-        const errorMsg = data.error || data.detail || 'Failed to reset password. Please try again.';
-        this.setState({ error: errorMsg, loading: false });
+        const data = await response.json();
+        if (response.ok) {
+          this.setState({ success: true, loading: false });
+          setTimeout(() => {
+            window.location.href = '/login';
+          }, 2000);
+        } else {
+          const errorMsg =
+            typeof data?.error === 'string' ? data.error
+            : data?.error?.message || data?.detail || data?.detail?.message || data?.message || 'Failed to reset password. Please try again.';
+          this.setState({ error: errorMsg, loading: false });
+        }
+      } catch (err) {
+        this.setState({ error: 'Failed to reset password. Please try again.', loading: false });
       }
-    } catch (err) {
-      this.setState({ error: 'Failed to reset password. Please try again.', loading: false });
-    }
   };
 
   render() {

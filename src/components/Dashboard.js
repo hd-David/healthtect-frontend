@@ -6,6 +6,7 @@ function Dashboard({ onLogout, user, token }) {
   const [stats, setStats] = useState(null);
   const [studies, setStudies] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const isAdmin = user?.is_hospital_admin;
   const isRadiologist = user?.is_radiologist;
@@ -24,6 +25,9 @@ function Dashboard({ onLogout, user, token }) {
     }
     return user?.username?.substring(0, 2).toUpperCase() || 'U';
   };
+
+  const closeSidebar = () => setSidebarOpen(false);
+  const toggleSidebar = () => setSidebarOpen((open) => !open);
 
   useEffect(() => {
     if (!token) return;
@@ -57,7 +61,7 @@ function Dashboard({ onLogout, user, token }) {
 
   // Sidebar navigation based on role
   const renderSidebar = () => (
-    <aside className="sidebar">
+    <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
       <div className="sidebar-header">
         <Link to="/dashboard" className="sidebar-brand">
           <div className="sidebar-brand-icon">🏥</div>
@@ -68,7 +72,7 @@ function Dashboard({ onLogout, user, token }) {
       <nav className="sidebar-nav">
         <div className="nav-section">
           <div className="nav-section-title">Main Menu</div>
-          <Link to="/dashboard" className="nav-item active">
+          <Link to="/dashboard" className="nav-item active" onClick={closeSidebar}>
             <span className="nav-item-icon">📊</span>
             Dashboard
           </Link>
@@ -78,15 +82,15 @@ function Dashboard({ onLogout, user, token }) {
         {isAdmin && (
           <div className="nav-section">
             <div className="nav-section-title">Management</div>
-            <Link to="/user" className="nav-item">
+            <Link to="/user" className="nav-item" onClick={closeSidebar}>
               <span className="nav-item-icon">👥</span>
               Users
             </Link>
-            <Link to="/invite" className="nav-item">
+            <Link to="/invite" className="nav-item" onClick={closeSidebar}>
               <span className="nav-item-icon">✉️</span>
               Invite Users
             </Link>
-            <Link to="/hospital" className="nav-item">
+            <Link to="/hospital" className="nav-item" onClick={closeSidebar}>
               <span className="nav-item-icon">🏨</span>
               Hospital Details
             </Link>
@@ -97,11 +101,11 @@ function Dashboard({ onLogout, user, token }) {
         {(isRadiologist || isClinician || isAdmin) && (
           <div className="nav-section">
             <div className="nav-section-title">Medical</div>
-            <Link to="/studies" className="nav-item">
+            <Link to="/studies" className="nav-item" onClick={closeSidebar}>
               <span className="nav-item-icon">🔬</span>
               Imaging Studies
             </Link>
-            <Link to="/results" className="nav-item">
+            <Link to="/results" className="nav-item" onClick={closeSidebar}>
               <span className="nav-item-icon">🤖</span>
               AI Analysis Results
             </Link>
@@ -112,7 +116,7 @@ function Dashboard({ onLogout, user, token }) {
         {isAdmin && (
           <div className="nav-section">
             <div className="nav-section-title">System</div>
-            <Link to="/logs" className="nav-item">
+            <Link to="/logs" className="nav-item" onClick={closeSidebar}>
               <span className="nav-item-icon">📝</span>
               Access Logs
             </Link>
@@ -388,10 +392,19 @@ function Dashboard({ onLogout, user, token }) {
   return (
     <div className="app-layout">
       {renderSidebar()}
+      {sidebarOpen && <div className="sidebar-backdrop open" onClick={closeSidebar} />}
 
       <div className="main-content">
         <header className="top-header">
           <div className="header-left">
+            <button
+              type="button"
+              className="menu-toggle"
+              aria-label="Toggle menu"
+              onClick={toggleSidebar}
+            >
+              ☰
+            </button>
             <h1 className="page-title">
               {isAdmin ? 'Admin Dashboard' : isRadiologist ? 'Radiologist Dashboard' : 'Dashboard'}
             </h1>

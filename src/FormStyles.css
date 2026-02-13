@@ -1616,3 +1616,37 @@
     padding: 40px 24px;
   }
 }
+
+/* ===== Fluid layout across all screen sizes ===== */
+:root {
+  --container-max: 1200px;
+}
+
+body {
+  font-size: clamp(14px, 1.6vw, 16px);
+}
+
+.landing-container,
+.page-content {
+  width: min(100%, var(--container-max));
+  margin: 0 auto;
+  padding-inline: clamp(12px, 4vw, 32px);
+}
+
+.stats-grid,
+.cards-grid,
+.quick-actions {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+img,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+@media (max-width: 1200px) {
+  .sidebar {
+    width: 240px;
+  }
+}

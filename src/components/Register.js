@@ -65,10 +65,14 @@ class Register extends Component {
           } else {
             errorMsg = data.email.join(' ');
           }
-        } else if (data && data.error) {
+        } else if (typeof data?.error === 'string') {
           errorMsg = data.error;
-        } else if (data && data.detail) {
+        } else if (typeof data?.detail === 'string') {
           errorMsg = data.detail;
+        } else if (data?.error?.message) {
+          errorMsg = data.error.message;
+        } else if (data?.detail?.message) {
+          errorMsg = data.detail.message;
         }
         this.setState({ error: errorMsg, loading: false });
       }

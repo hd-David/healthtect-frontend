@@ -36,7 +36,9 @@ class ForgotPassword extends Component {
           email: ''
         });
       } else {
-        const errorMsg = data.error || data.detail || 'Failed to send reset email. Please try again.';
+        const errorMsg =
+          typeof data?.error === 'string' ? data.error
+          : data?.error?.message || data?.detail || data?.detail?.message || data?.message || 'Failed to send reset email. Please try again.';
         this.setState({ error: errorMsg, loading: false });
       }
     } catch (err) {

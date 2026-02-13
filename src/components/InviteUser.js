@@ -152,7 +152,10 @@ function InviteUser({ token, user: currentUser }) {
         fetchInvitations();
         setTimeout(() => setSuccess(false), 5000);
       } else {
-        setError(data.error || data.detail || 'Failed to resend invitation');
+        const errMsg =
+          typeof data?.error === 'string' ? data.error
+          : data?.error?.message || data?.detail || data?.message || 'Failed to resend invitation';
+        setError(errMsg);
       }
     } catch (err) {
       console.error('Failed to resend invitation:', err);
@@ -373,7 +376,7 @@ function InviteUser({ token, user: currentUser }) {
                 )}
                 {error && (
                   <div className="alert alert-error" style={{ marginTop: '16px' }}>
-                    {error}
+                    {typeof error === 'string' ? error : JSON.stringify(error)}
                   </div>
                 )}
               </form>

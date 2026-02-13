@@ -96,7 +96,9 @@ class AcceptInvitation extends Component {
           window.location.href = '/login';
         }, 2000);
       } else {
-        let errorMsg = data.error || data.detail || 'Failed to create account. Please try again.';
+        let errorMsg =
+          typeof data?.error === 'string' ? data.error
+          : data?.error?.message || data?.detail || data?.detail?.message || data?.message || 'Failed to create account. Please try again.';
         if (data.username) {
           errorMsg = Array.isArray(data.username) ? data.username[0] : data.username;
         }

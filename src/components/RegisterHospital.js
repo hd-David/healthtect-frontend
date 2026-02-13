@@ -16,6 +16,7 @@ class RegisterHospital extends Component {
       error: '',
       loading: false,
       success: false,
+      errors: {},
     };
   }
 
@@ -23,9 +24,56 @@ class RegisterHospital extends Component {
     this.setState({ [e.target.name]: e.target.value });
   };
 
+  validateForm = () => {
+    const errors = {};
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^\+?[0-9\-\s]{7,20}$/;
+    const { name, hospitalType, address, contactPhone, contactEmail, registrationNumber, tpin } = this.state;
+
+    if (!name.trim()) {
+      errors.name = 'Hospital name is required';
+    } else if (name.trim().length < 3) {
+      errors.name = 'Hospital name must be at least 3 characters';
+    }
+
+    if (!['private', 'public', 'ngo'].includes(hospitalType)) {
+      errors.hospitalType = 'Select a valid hospital type';
+    }
+
+    if (!address.trim()) {
+      errors.address = 'Address is required';
+    } else if (address.trim().length < 5) {
+      errors.address = 'Address must be at least 5 characters';
+    }
+
+    if (contactEmail && !emailRegex.test(contactEmail.trim())) {
+      errors.contactEmail = 'Enter a valid email address';
+    }
+
+    if (contactPhone && !phoneRegex.test(contactPhone.trim())) {
+      errors.contactPhone = 'Enter a valid phone number (digits, spaces, +, -)';
+    }
+
+    if (registrationNumber && registrationNumber.trim().length < 3) {
+      errors.registrationNumber = 'Registration number looks too short';
+    }
+
+    if (tpin && tpin.trim().length < 4) {
+      errors.tpin = 'TPIN looks too short';
+    }
+
+    return errors;
+  };
+
   handleSubmit = async (e) => {
     e.preventDefault();
-    this.setState({ loading: true, error: '', success: false });
+    const errors = this.validateForm();
+    if (Object.keys(errors).length) {
+      this.setState({ errors, error: 'Please fix the highlighted fields.', success: false, loading: false });
+      return;
+    }
+
+    this.setState({ loading: true, error: '', success: false, errors: {} });
     
     try {
       const response = await fetch('http://localhost:8000/api/register-hospital/', {
@@ -63,10 +111,14 @@ class RegisterHospital extends Component {
         let errorMsg = 'Hospital registration failed';
         if (data && data.name && Array.isArray(data.name)) {
           errorMsg = data.name.join(' ');
-        } else if (data && data.error) {
+        } else if (typeof data?.error === 'string') {
           errorMsg = data.error;
-        } else if (data && data.detail) {
+        } else if (typeof data?.detail === 'string') {
           errorMsg = data.detail;
+        } else if (data?.error?.message) {
+          errorMsg = data.error.message;
+        } else if (data?.detail?.message) {
+          errorMsg = data.detail.message;
         } else if (typeof data === 'string') {
           errorMsg = data;
         }
@@ -124,6 +176,7 @@ class RegisterHospital extends Component {
                   onChange={this.handleChange}
                   required
                 />
+                {this.state.errors.name && <div style={{ color: '#c53030', marginTop: '4px', fontSize: '0.85rem' }}>{this.state.errors.name}</div>}
               </div>
               
               <div className="form-group">
@@ -140,6 +193,7 @@ class RegisterHospital extends Component {
                   <option value="public">Public</option>
                   <option value="ngo">NGO</option>
                 </select>
+                {this.state.errors.hospitalType && <div style={{ color: '#c53030', marginTop: '4px', fontSize: '0.85rem' }}>{this.state.errors.hospitalType}</div>}
               </div>
               
               <div className="form-group">
@@ -155,6 +209,7 @@ class RegisterHospital extends Component {
                   rows="2"
                   style={{ resize: 'vertical', minHeight: '60px' }}
                 />
+                {this.state.errors.address && <div style={{ color: '#c53030', marginTop: '4px', fontSize: '0.85rem' }}>{this.state.errors.address}</div>}
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
@@ -169,6 +224,7 @@ class RegisterHospital extends Component {
                     value={this.state.contactPhone}
                     onChange={this.handleChange}
                   />
+                  {this.state.errors.contactPhone && <div style={{ color: '#c53030', marginTop: '4px', fontSize: '0.85rem' }}>{this.state.errors.contactPhone}</div>}
                 </div>
                 <div className="form-group">
                   <label className="form-label" htmlFor="contactEmail">Contact Email</label>
@@ -181,6 +237,7 @@ class RegisterHospital extends Component {
                     value={this.state.contactEmail}
                     onChange={this.handleChange}
                   />
+                  {this.state.errors.contactEmail && <div style={{ color: '#c53030', marginTop: '4px', fontSize: '0.85rem' }}>{this.state.errors.contactEmail}</div>}
                 </div>
               </div>
 
@@ -196,6 +253,7 @@ class RegisterHospital extends Component {
                     value={this.state.registrationNumber}
                     onChange={this.handleChange}
                   />
+                  {this.state.errors.registrationNumber && <div style={{ color: '#c53030', marginTop: '4px', fontSize: '0.85rem' }}>{this.state.errors.registrationNumber}</div>}
                 </div>
                 <div className="form-group">
                   <label className="form-label" htmlFor="tpin">TPIN</label>
@@ -208,6 +266,7 @@ class RegisterHospital extends Component {
                     value={this.state.tpin}
                     onChange={this.handleChange}
                   />
+                  {this.state.errors.tpin && <div style={{ color: '#c53030', marginTop: '4px', fontSize: '0.85rem' }}>{this.state.errors.tpin}</div>}
                 </div>
               </div>
 

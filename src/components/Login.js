@@ -31,17 +31,22 @@ class Login extends Component {
       });
       const data = await response.json();
       if (response.ok && data.access) {
+        const userInfo = data.user ? { ...data.user, must_reset_password: data.must_reset_password } : null;
         if (this.props.onLogin) {
-          this.props.onLogin(data.access, data.user || null);
+          this.props.onLogin(data.access, userInfo);
         }
-        // Check if user has a hospital - redirect to register-hospital if not
-        if (data.user && !data.user.hospital_id) {
+        if (data.must_reset_password) {
+          window.location.href = '/force-reset';
+        } else if (data.user && !data.user.hospital_id) {
           window.location.href = '/register-hospital';
         } else {
           window.location.href = '/dashboard';
         }
       } else {
-        this.setState({ error: data.detail || 'Invalid credentials', loading: false });
+        const errMsg =
+          typeof data?.detail === 'string' ? data.detail
+          : data?.detail?.message || data?.message || data?.error || 'Invalid credentials';
+        this.setState({ error: errMsg, loading: false });
       }
     } catch (err) {
       this.setState({ error: 'Login failed', loading: false });
@@ -107,7 +112,14 @@ class Login extends Component {
               <button type="submit" className="btn-primary" disabled={this.state.loading}>
                 {this.state.loading ? 'Signing in...' : 'Sign In'}
               </button>
-              {this.state.error && <div className="alert alert-error">{this.state.error}</div>}
+                          {this.state.error && (
+                <div className="alert alert-error">
+                  {typeof this.state.error === 'string'
+                    ? this.state.error
+                    : this.state.error?.message || JSON.stringify(this.state.error)}
+                </div>
+              )}
+
             </form>
             <div className="auth-footer">
               <p><Link to="/forgot-password">Forgot your password?</Link></p>

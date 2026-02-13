@@ -148,7 +148,7 @@ function AIResult({ token, user }) {
             </div>
             <div className="card-body">
               {loading && <p style={{ color: 'var(--text-muted)' }}>Loading results...</p>}
-              {error && <div className="alert alert-error">Error: {error}</div>}
+              {error && <div className="alert alert-error">Error: {typeof error === 'string' ? error : JSON.stringify(error)}</div>}
               {!loading && !error && results.length === 0 && (
                 <div style={{ textAlign: 'center', padding: '40px' }}>
                   <div style={{ fontSize: '48px', marginBottom: '16px' }}>🤖</div>

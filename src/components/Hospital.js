@@ -170,7 +170,7 @@ function Hospital({ token, user }) {
             </div>
             <div className="card-body">
               {loading && <p style={{ color: 'var(--text-muted)' }}>Loading hospitals...</p>}
-              {error && <div className="alert alert-error">Error: {error}</div>}
+              {error && <div className="alert alert-error">Error: {typeof error === 'string' ? error : JSON.stringify(error)}</div>}
               {!loading && !error && hospitals.length === 0 && (
                 <div style={{ textAlign: 'center', padding: '40px 20px' }}>
                   <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏨</div>

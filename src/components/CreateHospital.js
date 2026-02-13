@@ -38,7 +38,10 @@ class CreateHospital extends Component {
         if (this.props.onCreated) this.props.onCreated();
       } else {
         const data = await response.json();
-        this.setState({ error: data.error || 'Hospital creation failed', loading: false });
+        const errorMsg =
+          typeof data?.error === 'string' ? data.error
+          : data?.error?.message || data?.detail || data?.message || 'Hospital creation failed';
+        this.setState({ error: errorMsg, loading: false });
       }
     } catch (err) {
       this.setState({ error: 'Hospital creation failed', loading: false });

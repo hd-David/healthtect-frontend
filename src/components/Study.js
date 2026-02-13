@@ -235,7 +235,7 @@ function Study({ token, user }) {
             </div>
             <div className="card-body" style={{ padding: 0 }}>
               {loading && <p style={{ color: 'var(--text-muted)', padding: '24px' }}>Loading studies...</p>}
-              {error && <div className="alert alert-error" style={{ margin: '24px' }}>Error: {error}</div>}
+              {error && <div className="alert alert-error" style={{ margin: '24px' }}>Error: {typeof error === 'string' ? error : JSON.stringify(error)}</div>}
               {!loading && !error && filteredStudies.length === 0 && (
                 <div style={{ textAlign: 'center', padding: '60px 20px' }}>
                   <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔬</div>

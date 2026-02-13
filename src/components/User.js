@@ -49,6 +49,7 @@ function User({ token, user: currentUser }) {
       .then((data) => {
         // Handle both paginated response {results: [...]} and plain array
         const userList = Array.isArray(data) ? data : (data.results || []);
+        console.log("Fetched users:", userList);
         setUsers(userList);
         setLoading(false);
       })
@@ -77,7 +78,9 @@ function User({ token, user: currentUser }) {
       .then(async (response) => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) {
-          const message = data.error || data.detail || 'Failed to sync Orthanc.';
+          const message =
+            typeof data?.error === 'string' ? data.error
+            : data?.error?.message || data?.detail || data?.detail?.message || data?.message || 'Failed to sync Orthanc.';
           throw new Error(message);
         }
         return data;
@@ -121,7 +124,10 @@ function User({ token, user: currentUser }) {
         setUsers(users.filter(u => u.id !== user.id));
         setActionMessage({ type: 'success', text: data.message || 'User deleted successfully.' });
       } else {
-        setActionMessage({ type: 'error', text: data.error || 'Failed to delete user.' });
+        const errText =
+          typeof data?.error === 'string' ? data.error
+          : data?.error?.message || data?.detail || data?.detail?.message || data?.message || 'Failed to delete user.';
+        setActionMessage({ type: 'error', text: errText });
       }
     } catch (err) {
       setActionMessage({ type: 'error', text: 'Failed to delete user. Please try again.' });
@@ -264,14 +270,18 @@ function User({ token, user: currentUser }) {
             </div>
             <div className="card-body">
               {syncMessage && <div className="alert alert-success">{syncMessage}</div>}
-              {syncError && <div className="alert alert-error">Error: {syncError}</div>}
+              {syncError && (
+                <div className="alert alert-error">
+                  Error: {typeof syncError === 'string' ? syncError : (syncError && syncError.message ? syncError.message : JSON.stringify(syncError))}
+                </div>
+              )}
               {actionMessage && (
                 <div className={`alert ${actionMessage.type === 'success' ? 'alert-success' : 'alert-error'}`}>
-                  {actionMessage.text}
+                  {typeof actionMessage.text === 'string' ? actionMessage.text : (actionMessage.text && actionMessage.text.message ? actionMessage.text.message : JSON.stringify(actionMessage.text))}
                 </div>
               )}
               {loading && <p style={{ color: 'var(--text-muted)' }}>Loading users...</p>}
-              {error && <div className="alert alert-error">Error: {error}</div>}
+              {error && <div className="alert alert-error">Error: {typeof error === 'string' ? error : JSON.stringify(error)}</div>}
               {!loading && !error && users.length === 0 && (
                 <p style={{ color: 'var(--text-muted)' }}>No users found.</p>
               )}

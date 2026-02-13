@@ -6,6 +6,7 @@ import User from './components/User';
 import Login from './components/Login';
 import Register from './components/Register';
 import RegisterHospital from './components/RegisterHospital';
+import ForcePasswordReset from './components/ForcePasswordReset';
 import Dashboard from './components/Dashboard';
 import Hospital from './components/Hospital';
 import Study from './components/Study';
@@ -56,26 +57,32 @@ function App() {
     setUser(updatedUser);
   }, []);
 
+  const handlePasswordResetComplete = useCallback(() => {
+    setUser((prev) => prev ? { ...prev, must_reset_password: false } : prev);
+  }, []);
+
   // Check if user needs to register hospital
   const needsHospitalRegistration = token && user && !user.hospital_id;
+  const mustResetPassword = token && user && user.must_reset_password;
 
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Landing />} />
-        <Route path="/login" element={token ? (needsHospitalRegistration ? <Navigate to="/register-hospital" replace /> : <Navigate to="/dashboard" replace />) : <Login onLogin={handleLogin} />} />
+        <Route path="/login" element={token ? (mustResetPassword ? <Navigate to="/force-reset" replace /> : needsHospitalRegistration ? <Navigate to="/register-hospital" replace /> : <Navigate to="/dashboard" replace />) : <Login onLogin={handleLogin} />} />
         <Route path="/register" element={<Register onRegister={() => {}} />} />
-        <Route path="/register-hospital" element={token ? (needsHospitalRegistration ? <RegisterHospital token={token} user={user} onLogout={handleLogout} onHospitalRegistered={handleHospitalRegistered} /> : <Navigate to="/dashboard" replace />) : <Navigate to="/login" replace />} />
+        <Route path="/register-hospital" element={token ? (mustResetPassword ? <Navigate to="/force-reset" replace /> : needsHospitalRegistration ? <RegisterHospital token={token} user={user} onLogout={handleLogout} onHospitalRegistered={handleHospitalRegistered} /> : <Navigate to="/dashboard" replace />) : <Navigate to="/login" replace />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/force-reset" element={token ? <ForcePasswordReset token={token} user={user} onLogout={handleLogout} onPasswordResetComplete={handlePasswordResetComplete} /> : <Navigate to="/login" replace />} />
         <Route path="/accept-invitation" element={<AcceptInvitation />} />
-        <Route path="/dashboard" element={token ? (needsHospitalRegistration ? <Navigate to="/register-hospital" replace /> : <Dashboard onLogout={handleLogout} user={user} token={token} />) : <Navigate to="/" replace />} />
-        <Route path="/user" element={token ? (needsHospitalRegistration ? <Navigate to="/register-hospital" replace /> : <User token={token} user={user} />) : <Navigate to="/" replace />} />
-        <Route path="/invite" element={token ? (needsHospitalRegistration ? <Navigate to="/register-hospital" replace /> : <InviteUser token={token} user={user} />) : <Navigate to="/" replace />} />
-        <Route path="/hospital" element={token ? (needsHospitalRegistration ? <Navigate to="/register-hospital" replace /> : <Hospital token={token} user={user} />) : <Navigate to="/" replace />} />
-        <Route path="/studies" element={token ? (needsHospitalRegistration ? <Navigate to="/register-hospital" replace /> : <Study token={token} user={user} />) : <Navigate to="/" replace />} />
-        <Route path="/results" element={token ? (needsHospitalRegistration ? <Navigate to="/register-hospital" replace /> : <AIResult token={token} user={user} />) : <Navigate to="/" replace />} />
-        <Route path="/logs" element={token ? (needsHospitalRegistration ? <Navigate to="/register-hospital" replace /> : <AccessLogs token={token} user={user} />) : <Navigate to="/" replace />} />
+        <Route path="/dashboard" element={token ? (mustResetPassword ? <Navigate to="/force-reset" replace /> : needsHospitalRegistration ? <Navigate to="/register-hospital" replace /> : <Dashboard onLogout={handleLogout} user={user} token={token} />) : <Navigate to="/" replace />} />
+        <Route path="/user" element={token ? (mustResetPassword ? <Navigate to="/force-reset" replace /> : needsHospitalRegistration ? <Navigate to="/register-hospital" replace /> : <User token={token} user={user} />) : <Navigate to="/" replace />} />
+        <Route path="/invite" element={token ? (mustResetPassword ? <Navigate to="/force-reset" replace /> : needsHospitalRegistration ? <Navigate to="/register-hospital" replace /> : <InviteUser token={token} user={user} />) : <Navigate to="/" replace />} />
+        <Route path="/hospital" element={token ? (mustResetPassword ? <Navigate to="/force-reset" replace /> : needsHospitalRegistration ? <Navigate to="/register-hospital" replace /> : <Hospital token={token} user={user} />) : <Navigate to="/" replace />} />
+        <Route path="/studies" element={token ? (mustResetPassword ? <Navigate to="/force-reset" replace /> : needsHospitalRegistration ? <Navigate to="/register-hospital" replace /> : <Study token={token} user={user} />) : <Navigate to="/" replace />} />
+        <Route path="/results" element={token ? (mustResetPassword ? <Navigate to="/force-reset" replace /> : needsHospitalRegistration ? <Navigate to="/register-hospital" replace /> : <AIResult token={token} user={user} />) : <Navigate to="/" replace />} />
+        <Route path="/logs" element={token ? (mustResetPassword ? <Navigate to="/force-reset" replace /> : needsHospitalRegistration ? <Navigate to="/register-hospital" replace /> : <AccessLogs token={token} user={user} />) : <Navigate to="/" replace />} />
       </Routes>
     </Router>
   );

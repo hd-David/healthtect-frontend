@@ -329,7 +329,7 @@ function AccessLogs({ token, user }) {
             </div>
             <div className="card-body">
               {loading && <p style={{ color: 'var(--text-muted)' }}>Loading access logs...</p>}
-              {error && <div className="alert alert-error">Error: {error}</div>}
+              {error && <div className="alert alert-error">Error: {typeof error === 'string' ? error : JSON.stringify(error)}</div>}
               {!loading && !error && logs.length === 0 && (
                 <p style={{ color: 'var(--text-muted)' }}>No access logs found.</p>
               )}
