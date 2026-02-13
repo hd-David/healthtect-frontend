@@ -49,7 +49,7 @@ class Login extends Component {
         this.setState({ error: errMsg, loading: false });
       }
     } catch (err) {
-      this.setState({ error: 'Login failed', loading: false });
+      this.setState({ error: err.message || 'Login failed', loading: false });
     }
   };
 
